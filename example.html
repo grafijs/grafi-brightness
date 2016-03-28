@@ -1,0 +1,44 @@
+<html>
+  <input type="file" id="input" onchange="reader.readAsDataURL(this.files[0])">
+  <h1>original</h1>
+  <img id="original">
+  <h1>processed</h1>
+  <div id="slider" hidden>
+    <input id="gamma" type="range" min="10" max="190" value="100"/>
+    <label id="label">1</label>
+  </div>
+  <canvas id="canvas" hidden></canvas>
+  <canvas id="output"></canvas>
+  <script src="grafi-brightness.js"></script>
+  <script>
+    var slider = document.getElementById('slider')
+    var gamma = document.getElementById('gamma')
+    var label = document.getElementById('label')
+    var original = document.getElementById('original')
+    var canvas = document.getElementById('canvas')
+    var output = document.getElementById('output')
+    var canvasCtx = canvas.getContext('2d')
+    var outputCtx = output.getContext('2d')
+    var reader = new FileReader()
+    reader.onload = function() {
+      original.src = reader.result
+    }
+    original.onload = function () {
+      slider.hidden = false
+      canvas.width = original.width
+      canvas.height = original.height
+      output.width = original.width
+      output.height = original.height
+      canvasCtx.drawImage(original, 0, 0)
+      newImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {gamma:1})
+      outputCtx.putImageData(newImage, 0, 0)
+      gamma.oninput = function() {
+        var gammaLevel = this.value < 100 ? this.value / 100 : (this.value - 90) / 10
+        var updatedImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {gamma: gammaLevel})
+        outputCtx.putImageData(updatedImage, 0, 0)
+        label.innerText = gammaLevel
+      }
+    }
+  </script>
+
+</hmtl>
