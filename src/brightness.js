@@ -5,7 +5,7 @@
   ### Parameters
     - imageData `Object`: ImageData object
     - option `Object` : Option object
-      - gamma `Number` : gamma level
+      - level `Number` : brightness level
       - monochrome `Boolean` : output to be monochrome (single color depth) image
 
   ### Example
@@ -15,12 +15,12 @@ function brightness (imgData, option) {
   // check options object
   option = option || {}
   option.monochrome = option.monochrome || false
-  option.gamma = option.gamma || 1
+  option.level = option.level || 1
 
   var pixelSize = imgData.width * imgData.height
   var dataLength = imgData.data.length
   var colorDepth = dataLength / pixelSize
-  var gamma =  1 / option.gamma
+  var level = option.level
 
   if (colorDepth !== 4 && colorDepth !== 1) {
     throw new Error('ImageObject has incorrect color depth, please pass RGBA image')
@@ -30,13 +30,13 @@ function brightness (imgData, option) {
   for (p = 0; p < pixelSize; p++) {
     // colorDepth 4 = the image has Alpha channel, skip brightness adjusting every 4th byte
     if (colorDepth === 1 || option.monochrome) {
-      newPixelData[i] = 255 * Math.pow((imgData.data[p] / 255), gamma)
+      newPixelData[i] = imgData.data[p] * level
       continue
     }
     _index = p * 4
-    newPixelData[_index] = 255 * Math.pow((imgData.data[_index] / 255), gamma)
-    newPixelData[_index + 1] = 255 * Math.pow((imgData.data[_index + 1] / 255), gamma)
-    newPixelData[_index + 2] = 255 * Math.pow((imgData.data[_index + 2] / 255), gamma)
+    newPixelData[_index] = imgData.data[_index] * level
+    newPixelData[_index + 1] = imgData.data[_index + 1] * level
+    newPixelData[_index + 2] = imgData.data[_index + 2] * level
     newPixelData[_index + 3] = imgData.data[_index + 3]
   }
 

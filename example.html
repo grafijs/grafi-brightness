@@ -30,7 +30,7 @@
       output.width = original.width
       output.height = original.height
       canvasCtx.drawImage(original, 0, 0)
-      newImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {gamma:1})
+      newImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {gamma: 1})
       outputCtx.putImageData(newImage, 0, 0)
       gamma.oninput = function() {
         var gammaLevel = this.value < 100 ? this.value / 100 : (this.value - 90) / 10
