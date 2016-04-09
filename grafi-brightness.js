@@ -60,7 +60,7 @@
     // check options object
     option = option || {}
     option.monochrome = option.monochrome || false
-    option.level = option.level || 1
+    option.level = parseInt(option.level, 10) || 0
 
     var pixelSize = imgData.width * imgData.height
     var dataLength = imgData.data.length
@@ -68,21 +68,35 @@
     var level = option.level
 
     if (colorDepth !== 4 && colorDepth !== 1) {
-      throw new Error('ImageObject has incorrect color depth, please pass RGBA image')
+      throw new Error('ImageObject has incorrect color depth')
     }
+
     var newPixelData = new Uint8ClampedArray(pixelSize * (option.monochrome || 4))
-    var i, _index
+    var p, _i, _data
     for (p = 0; p < pixelSize; p++) {
-      // colorDepth 4 = the image has Alpha channel, skip brightness adjusting every 4th byte
-      if (colorDepth === 1 || option.monochrome) {
-        newPixelData[i] = imgData.data[p] * level
+      _data = imgData.data[p] + level
+
+      // case 1. output should be 1 channel (monochrome)
+      if (option.monochrome) {
+        newPixelData[p] = _data
         continue
       }
-      _index = p * 4
-      newPixelData[_index] = imgData.data[_index] * level
-      newPixelData[_index + 1] = imgData.data[_index + 1] * level
-      newPixelData[_index + 2] = imgData.data[_index + 2] * level
-      newPixelData[_index + 3] = imgData.data[_index + 3]
+
+      // case 2. input is 1 channel but output should be RGBA
+      if (colorDepth === 1) {
+        newPixelData[_i] = _data
+        newPixelData[_i + 1] = _data
+        newPixelData[_i + 2] = _data
+        newPixelData[_i + 3] = 255
+        continue
+      }
+
+      // case 3. input is RGBA  and output should also be RGBA
+      _i = p * 4
+      newPixelData[_i] = imgData.data[_i] + level
+      newPixelData[_i + 1] = imgData.data[_i + 1] + level
+      newPixelData[_i + 2] = imgData.data[_i + 2] + level
+      newPixelData[_i + 3] = imgData.data[_i + 3]
     }
 
     return formatter(newPixelData, imgData.width, imgData.height)

@@ -4,15 +4,15 @@
   <img id="original">
   <h1>processed</h1>
   <div id="slider" hidden>
-    <input id="gamma" type="range" min="10" max="190" value="100"/>
-    <label id="label">1</label>
+    <input id="level" type="range" min="-255" max="255" value="0"/>
+    <label id="label">0 </label>
   </div>
   <canvas id="canvas" hidden></canvas>
   <canvas id="output"></canvas>
   <script src="grafi-brightness.js"></script>
   <script>
     var slider = document.getElementById('slider')
-    var gamma = document.getElementById('gamma')
+    var level = document.getElementById('level')
     var label = document.getElementById('label')
     var original = document.getElementById('original')
     var canvas = document.getElementById('canvas')
@@ -30,13 +30,14 @@
       output.width = original.width
       output.height = original.height
       canvasCtx.drawImage(original, 0, 0)
-      newImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {gamma: 1})
+      newImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {level: 0})
       outputCtx.putImageData(newImage, 0, 0)
-      gamma.oninput = function() {
-        var gammaLevel = this.value < 100 ? this.value / 100 : (this.value - 90) / 10
-        var updatedImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {gamma: gammaLevel})
+
+      level.oninput = function() {
+        var l = this.value
+        var updatedImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {level: l})
         outputCtx.putImageData(updatedImage, 0, 0)
-        label.innerText = gammaLevel
+        label.innerText = l
       }
     }
   </script>
