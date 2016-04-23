@@ -3,11 +3,32 @@
     ## ImageData object constructor
     Every return from grafi method is formatted to an ImageData object.
     This constructor is used when `window` is not available.
+    (for example you are using grafi in node)
    */
-  function ImageData (pixelData, width, height) {
+  function GrafiImageData (pixelData, width, height) {
     this.width = width
     this.height = height
     this.data = pixelData
+  }
+
+  /**
+    ## Color Depth Checker
+    To maintain simplicity of code, grafi only accepts ImageData in RGBA
+    Length of pixelData must be 4 times as much as available pixels (width * height).
+   */
+  function checkColorDepth (dataset, width, height) {
+    var colorDepth
+    if (dataset.width && dataset.height) {
+      // When ImageData object was passed as dataset
+      colorDepth = dataset.data.length / (dataset.width * dataset.height)
+    } else {
+      // When just an array was passed as dataset
+      colorDepth = dataset.length / (width * height)
+    }
+
+    if (colorDepth !== 4) {
+      throw new Error('data and size of the image does now match')
+    }
   }
 
   /**
@@ -24,79 +45,55 @@
         // ImageData { data: Uint8ClampedArray[400], width: 10, height: 10, }
    */
   function formatter (pixelData, width, height) {
-    var colorDepth = pixelData.length / (width * height)
-
-    // Length of pixelData must be multipul of available pixels (width * height).
-    // Maximum color depth allowed is 4 (RGBA)
-    if (Math.round(colorDepth) !== colorDepth || colorDepth > 4) {
-      throw new Error('data and size of the image does now match')
-    }
+    // check the size of data matches
+    checkColorDepth(pixelData, width, height)
 
     if (!(pixelData instanceof Uint8ClampedArray)) {
       throw new Error('pixel data passed is not an Uint8ClampedArray')
     }
 
-    // If window is avilable create ImageData using browser API,
+    // If window is available create ImageData using browser API,
     // otherwise call ImageData constructor
-    if (typeof window === 'object' && colorDepth === 4) {
+    if (typeof window === 'object') {
       return new window.ImageData(pixelData, width, height)
     }
-    return new ImageData(pixelData, width, height)
+    return new GrafiImageData(pixelData, width, height)
   }
   /**
     ## brightness method
-    Brief description
+    Adjust brightness of an image based on level passed
 
     ### Parameters
       - imageData `Object`: ImageData object
       - option `Object` : Option object
         - level `Number` : brightness level
-        - monochrome `Boolean` : output to be monochrome (single color depth) image
 
     ### Example
-        //code sample goes here
+        var input = { data: Uint8ClampedArray[400], width: 10, height: 10 }
+        // brighten image
+        grafi.brightness(input, {level: 10})
+        // darken image
+        grafi.brightness(input, {level: -10})
    */
   function brightness (imgData, option) {
+    // sanitary check for input data
+    checkColorDepth(imgData)
+
     // check options object
     option = option || {}
-    option.monochrome = option.monochrome || false
-    option.level = parseInt(option.level, 10) || 0
+    option.level = option.level || 0
 
     var pixelSize = imgData.width * imgData.height
-    var dataLength = imgData.data.length
-    var colorDepth = dataLength / pixelSize
     var level = option.level
 
-    if (colorDepth !== 4 && colorDepth !== 1) {
-      throw new Error('ImageObject has incorrect color depth')
-    }
-
-    var newPixelData = new Uint8ClampedArray(pixelSize * (option.monochrome || 4))
-    var p, _i, _data
-    for (p = 0; p < pixelSize; p++) {
-      _data = imgData.data[p] + level
-
-      // case 1. output should be 1 channel (monochrome)
-      if (option.monochrome) {
-        newPixelData[p] = _data
-        continue
-      }
-
-      // case 2. input is 1 channel but output should be RGBA
-      if (colorDepth === 1) {
-        newPixelData[_i] = _data
-        newPixelData[_i + 1] = _data
-        newPixelData[_i + 2] = _data
-        newPixelData[_i + 3] = 255
-        continue
-      }
-
-      // case 3. input is RGBA  and output should also be RGBA
-      _i = p * 4
-      newPixelData[_i] = imgData.data[_i] + level
-      newPixelData[_i + 1] = imgData.data[_i + 1] + level
-      newPixelData[_i + 2] = imgData.data[_i + 2] + level
-      newPixelData[_i + 3] = imgData.data[_i + 3]
+    var newPixelData = new Uint8ClampedArray(pixelSize * 4)
+    var pixel, index
+    for (pixel = 0; pixel < pixelSize; pixel++) {
+      index = pixel * 4
+      newPixelData[index] = imgData.data[index] + level
+      newPixelData[index + 1] = imgData.data[index + 1] + level
+      newPixelData[index + 2] = imgData.data[index + 2] + level
+      newPixelData[index + 3] = imgData.data[index + 3]
     }
 
     return formatter(newPixelData, imgData.width, imgData.height)

@@ -1,7 +1,7 @@
 {
   "name": "grafi-brightness",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Brightness module for grafi.js",
   "main": "grafi-brightness.js",
   "scripts": {
     "test": "node grafi-brightness.test.js",

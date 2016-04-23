@@ -2,25 +2,17 @@ var assert = require('assert')
 var grafi = require('./grafi-brightness.js')
 
 var inputData = {data: [10, 20, 30, 255], width: 1, height: 1}
-var monoInputData = {data: [10, 20, 30, 40], width: 2, height: 2}
-var imageData = grafi.brightness(inputData, {level: 10})
-var monoData = grafi.brightness(monoInputData, {level: 10, monochrome: true})
-var mono2rgbData = grafi.brightness(monoInputData, {level: 10, monochrome: false})
+var brightenData = grafi.brightness(inputData, {level: 10})
+var darkenData = grafi.brightness(inputData, {level: -10})
 
-assert(imageData.constructor.toString().match(/function\s(\w*)/)[1] === 'ImageData',
-  'returned object is an instance of ImageData')
+assert(brightenData.constructor.toString().match(/function\s(\w*)/)[1] === 'GrafiImageData',
+  'returned object is an instance of GrafiImageData')
 
-assert(imageData.data[0] > inputData.data[0],
+assert(brightenData.data[0] > inputData.data[0],
   'returned pixel data is blighter than input pixel data')
 
-assert(imageData.data[3] === inputData.data[3],
+assert(brightenData.data[3] === inputData.data[3],
   'for RGBA mode, alpha channel is not altered')
 
-assert(monoData.data.length === monoInputData.width * monoInputData.height,
-  'with monochrome flag, returned pixel data is single channel')
-
-assert(mono2rgbData.data.length === monoInputData.width * monoInputData.height * 4,
-  'if monochrome flag is false, returned pixel data is 4 channel RGBA')
-
-assert(mono2rgbData.data[3] === 255,
-  'if monochrome input with monochrome flag false, alpha chanel is set to 255')
+assert(darkenData.data[0] < inputData.data[0],
+  'returned pixel data is darker than input pixel data')

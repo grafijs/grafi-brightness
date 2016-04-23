@@ -1,11 +1,12 @@
 <html>
   <input type="file" id="input" onchange="reader.readAsDataURL(this.files[0])">
-  <h1>original</h1>
+  <h1>grafi.js brightness sample</h1>
+  <h2>original</h2>
   <img id="original">
-  <h1>processed</h1>
+  <h2>processed</h2>
   <div id="slider" hidden>
     <input id="level" type="range" min="-255" max="255" value="0"/>
-    <label id="label">0 </label>
+    <label id="label">0</label>
   </div>
   <canvas id="canvas" hidden></canvas>
   <canvas id="output"></canvas>
@@ -35,7 +36,7 @@
 
       level.oninput = function() {
         var l = this.value
-        var updatedImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {level: l})
+        var updatedImage = grafi.brightness(canvasCtx.getImageData(0, 0, original.width, original.height), {level: parseInt(l)})
         outputCtx.putImageData(updatedImage, 0, 0)
         label.innerText = l
       }
